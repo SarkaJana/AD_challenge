@@ -29,36 +29,33 @@ class User:
 # user1.__eq__(user2)
 
 def process_csv(path: str) -> Tuple[List[User], List[str]]:
-    # TODO finish this function
     with open ("./users.csv", newline='') as users_file:
-        csv_reader_object = csv.reader(users_file)
+        csv_reader_object = csv.DictReader(users_file)
         users_list = []
-        list_of_string = []
-        for count, row in enumerate(csv_reader_object, -1):
-            if csv_reader_object.line_num == 1:
-                continue
+        list_of_errors = []
+        for count, row in enumerate(csv_reader_object):
+            first_name = row['First name']
+            last_name = row['Last name']
+            phone_number = row['Phone number']
+            errors_in_row = []
+            if not first_name.isalpha():
+                errors_in_row.append("invalid first name")
+
+            if not last_name.isalpha():
+                errors_in_row.append("invalid last name")
+
+            if not phone_number.isdigit():
+                errors_in_row.append("invalid phone number")
+
+            #if first_name.isalpha() and last_name.isalpha() and phone_number.isdigit():
+            if len(errors_in_row) == 0:
+                user = User(first_name=first_name, last_name=last_name, phone_number=phone_number)
+                users_list.append(user)
             else:
-                first_name = row[0]     #1. hodnota řádku
-                last_name = row[1]
-                phone_number = row[2]
-                field_name = []
-                if not first_name.isalpha():
-                    field_name.append("invalid first name")
+                error = ', '.join(errors_in_row)
+                list_of_errors.append(f'[ERROR - row {count}] {error}')
 
-                if not last_name.isalpha():
-                    field_name.append("invalid last name")
-
-                if not phone_number.isdigit():
-                    field_name.append("invalid phone number")
-
-                if first_name.isalpha() and last_name.isalpha() and phone_number.isdigit():
-                    user = User(first_name=first_name, last_name=last_name, phone_number=phone_number)
-                    users_list.append(user)
-                else:
-                    error = ', '.join(field_name)
-                    list_of_string.append(f'[ERROR - row {count}] {error}')
-
-    return tuple((users_list, list_of_string))  #double round brackets
+    return tuple((users_list, list_of_errors))  #double round brackets
 
 
 def is_correct(users: [User], errors: [str]):
